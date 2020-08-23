@@ -10,20 +10,20 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.onlinejudge.adapters.SubmissionAdapter;
 import com.example.onlinejudge.adapters.TaskAdapter;
 import com.example.onlinejudge.databinding.FragmentHomeBinding;
 import com.example.onlinejudge.models.Task;
-import com.example.onlinejudge.viewmodels.TaskViewModel;
+import com.example.onlinejudge.viewmodels.HomeViewModel;
+import com.example.onlinejudge.viewmodels.MainViewModel;
+import com.google.android.material.tabs.TabLayout;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -31,9 +31,10 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class HomeFragment extends Fragment {
     private static final String TAG = "Home";
     private FragmentHomeBinding binding;
-    private TaskViewModel viewModel;
-    private TaskAdapter adapter;
-    private ArrayList<Task> tasks;
+    private MainViewModel mainViewModel;
+    private HomeViewModel viewModel;
+    private TaskAdapter taskAdapter;
+    private SubmissionAdapter submissionAdapter;
 
     @Nullable
     @Override
@@ -46,11 +47,38 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        viewModel = new ViewModelProvider(this).get(TaskViewModel.class);
+        viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+        mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
+        binding.tabLayoutHome.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                mainViewModel.setLoading(true);
+                if (tab.getPosition() == 0) {
+                    viewModel.pullTasks(new HashMap<>());
+                    binding.recyclerViewHome.setAdapter(taskAdapter);
+                } else {
+                    viewModel.pullSubmissions(new HashMap<>());
+                    binding.recyclerViewHome.setAdapter(submissionAdapter);
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+        taskAdapter = new TaskAdapter(getContext(), null);
+        submissionAdapter = new SubmissionAdapter(getContext(), null);
         initRecyclerView();
         observeData();
         setUpItemTouchHelper();
+
+        mainViewModel.setLoading(true);
         viewModel.pullTasks(new HashMap<>());
     }
 
@@ -63,31 +91,39 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                int swipedPokemonPosition = viewHolder.getAdapterPosition();
-                Task task = adapter.getTaskAt(swipedPokemonPosition);
+                int swipedTaskPosition = viewHolder.getAdapterPosition();
+                Task task = taskAdapter.getTaskAt(swipedTaskPosition);
                 viewModel.insertSavedTask(task);
-                adapter.notifyDataSetChanged();
+                taskAdapter.notifyDataSetChanged();
                 Toast.makeText(getContext(),"Task saved.",Toast.LENGTH_SHORT).show();
             }
         };
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
-        itemTouchHelper.attachToRecyclerView(binding.recyclerViewTasks);
+        itemTouchHelper.attachToRecyclerView(binding.recyclerViewHome);
     }
 
     private void observeData() {
-        viewModel.getTasks().observe(getViewLifecycleOwner(), new Observer<ArrayList<Task>>() {
-            @Override
-            public void onChanged(ArrayList<Task> tasks) {
-                Log.e(TAG, "onChanged: " + tasks.size());
-                adapter.updateList(tasks);
-            }
+        viewModel.getTasks().observe(getViewLifecycleOwner(), tasks -> {
+            Log.e(TAG, "tasks->onChanged: " + tasks.size());
+            mainViewModel.setLoading(false);
+            taskAdapter.updateList(tasks);
         });
+        viewModel.getSubmissions().observe(getViewLifecycleOwner(), submissions -> {
+            Log.e(TAG, "submissions->onChanged: " + submissions.size());
+            mainViewModel.setLoading(false);
+            submissionAdapter.updateList(submissions);
+        });
+        viewModel.getToastMessage().observe(getViewLifecycleOwner(),
+                msg -> {
+                    if (msg != null && !msg.isEmpty()) {
+                        Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void initRecyclerView() {
-        binding.recyclerViewTasks.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new TaskAdapter(getContext(), tasks);
-        binding.recyclerViewTasks.setAdapter(adapter);
+        binding.recyclerViewHome.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.recyclerViewHome.setAdapter(taskAdapter);
     }
 }

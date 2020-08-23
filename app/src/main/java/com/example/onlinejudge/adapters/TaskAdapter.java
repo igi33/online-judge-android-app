@@ -22,7 +22,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         this.mList = mList;
     }
 
-
     @NonNull
     @Override
     public TaskAdapter.TaskViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -51,7 +50,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         }
     }
 
-    public  void updateList(ArrayList<Task> updatedList) {
+    public void updateList(ArrayList<Task> updatedList) {
         mList = updatedList;
         notifyDataSetChanged();
     }

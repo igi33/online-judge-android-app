@@ -1,6 +1,7 @@
 package com.example.onlinejudge.api;
 
 import com.example.onlinejudge.models.ComputerLanguage;
+import com.example.onlinejudge.models.Submission;
 import com.example.onlinejudge.models.Task;
 
 import java.util.ArrayList;
@@ -17,4 +18,7 @@ public interface OnlineJudgeApi {
 
     @GET("computerlanguage")
     Call<ArrayList<ComputerLanguage>> getComputerLanguages();
+
+    @GET("submission")
+    Observable<ArrayList<Submission>> getSubmissions(@QueryMap Map<String, Object> options);
 }

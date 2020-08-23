@@ -9,7 +9,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -18,19 +17,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.onlinejudge.adapters.TaskAdapter;
 import com.example.onlinejudge.databinding.FragmentSavedTasksBinding;
 import com.example.onlinejudge.models.Task;
-import com.example.onlinejudge.viewmodels.TaskViewModel;
+import com.example.onlinejudge.viewmodels.HomeViewModel;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class SavedTasksFragment extends Fragment {
     private FragmentSavedTasksBinding binding;
-    private TaskViewModel viewModel;
+    private HomeViewModel viewModel;
     private TaskAdapter adapter;
-    private ArrayList<Task> savedTasks;
 
     @Nullable
     @Override
@@ -43,25 +40,20 @@ public class SavedTasksFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        viewModel = new ViewModelProvider(this).get(TaskViewModel.class);
-
+        viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
         initRecyclerView();
         setUpItemTouchHelper();
         observeData();
-        //viewModel.pullFavoritePokemon();
+        viewModel.pullSavedTasks();
     }
 
     private void observeData() {
-        viewModel.getSavedTasks().observe(getViewLifecycleOwner(), new Observer<List<Task>>() {
-            @Override
-            public void onChanged(List<Task> savedTasks) {
-
-                if (savedTasks == null || savedTasks.size() == 0) {
-                    binding.textViewNoSavedTasks.setVisibility(View.VISIBLE);
-                } else {
-                    ArrayList<Task> list = new ArrayList<>(savedTasks);
-                    adapter.updateList(list);
-                }
+        viewModel.getSavedTasks().observe(getViewLifecycleOwner(), savedTasks -> {
+            if (savedTasks == null || savedTasks.size() == 0) {
+                binding.textViewNoSavedTasks.setVisibility(View.VISIBLE);
+            } else {
+                ArrayList<Task> list = new ArrayList<>(savedTasks);
+                adapter.updateList(list);
             }
         });
     }
@@ -88,7 +80,7 @@ public class SavedTasksFragment extends Fragment {
 
     private void initRecyclerView() {
         binding.recyclerViewSavedTasks.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new TaskAdapter(getContext(), savedTasks);
+        adapter = new TaskAdapter(getContext(), null);
         binding.recyclerViewSavedTasks.setAdapter(adapter);
     }
 }
