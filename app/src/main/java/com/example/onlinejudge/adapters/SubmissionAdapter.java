@@ -44,7 +44,7 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionAdapter.Su
         return mList == null ? 0 : mList.size();
     }
 
-    class SubmissionViewHolder extends RecyclerView.ViewHolder {
+    static class SubmissionViewHolder extends RecyclerView.ViewHolder {
         private ListItemSubmissionBinding itemBinding;
 
         public SubmissionViewHolder(ListItemSubmissionBinding itemBinding) {

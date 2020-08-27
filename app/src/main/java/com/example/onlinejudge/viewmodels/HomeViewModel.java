@@ -1,7 +1,5 @@
 package com.example.onlinejudge.viewmodels;
 
-import android.util.Log;
-
 import androidx.hilt.Assisted;
 import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
@@ -18,30 +16,27 @@ import java.util.List;
 import java.util.Map;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class HomeViewModel extends ViewModel {
     private static final String TAG = "HomeViewModel";
     private final SavedStateHandle savedStateHandle;
     private OnlineJudgeRepository repository;
+
     private MutableLiveData<ArrayList<Task>> tasks = new MutableLiveData<>();
     private MutableLiveData<ArrayList<Submission>> submissions = new MutableLiveData<>();
-    private MutableLiveData<String> toastMessage = new MutableLiveData<>();
     private LiveData<List<Task>> savedTasks;
 
     @ViewModelInject
     public HomeViewModel(OnlineJudgeRepository repository, @Assisted SavedStateHandle savedStateHandle) {
-        this.repository = repository;
         this.savedStateHandle = savedStateHandle;
+        this.repository = repository;
         savedTasks = repository.getSavedTasks();
     }
 
     public MutableLiveData<ArrayList<Task>> getTasks() {
         return tasks;
-    }
-
-    public MutableLiveData<String> getToastMessage() {
-        return toastMessage;
     }
 
     public MutableLiveData<ArrayList<Submission>> getSubmissions() {
@@ -52,32 +47,21 @@ public class HomeViewModel extends ViewModel {
         return savedTasks;
     }
 
-    public void pullTasks(Map<String, Object> options) {
-        repository.getTasks(options)
+    public Observable<ArrayList<Task>> observeTasks(Map<String, Object> options) {
+        return repository.getTasks(options)
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(result -> tasks.setValue(result),
-                        error -> {
-                            Log.e(TAG, "pullTasks: " + error.getMessage());
-                            toastMessage.setValue("Error loading tasks. Try again later!");
-                        });
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
-    public void pullSubmissions(Map<String, Object> options) {
-        repository.getSubmissions(options)
+    public Observable<ArrayList<Submission>> observeSubmissions(Map<String, Object> options) {
+        return repository.getSubmissions(options)
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(result -> submissions.setValue(result),
-                        error -> {
-                            Log.e(TAG, "pullSubmissions: " + error.getMessage());
-                            toastMessage.setValue("Error loading submissions. Try again later!");
-                        });
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     public void pullSavedTasks() {
         savedTasks = repository.getSavedTasks();
     }
-
     public void insertSavedTask(Task task) {
         repository.insertSavedTask(task);
     }

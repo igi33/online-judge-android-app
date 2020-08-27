@@ -27,7 +27,7 @@ public class NetworkModule {
         OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
         Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss").create();
 
-        return  new Retrofit.Builder()
+        return new Retrofit.Builder()
                 .baseUrl("http://10.0.2.2:4000/api/")
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJava3CallAdapterFactory.create())

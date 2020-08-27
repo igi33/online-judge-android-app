@@ -23,13 +23,14 @@ import com.example.onlinejudge.viewmodels.HomeViewModel;
 import com.example.onlinejudge.viewmodels.MainViewModel;
 import com.google.android.material.tabs.TabLayout;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class HomeFragment extends Fragment {
-    private static final String TAG = "Home";
+public class HomeFragment extends Fragment implements View.OnClickListener {
+    private static final String TAG = "HomeFragment";
     private FragmentHomeBinding binding;
     private MainViewModel mainViewModel;
     private HomeViewModel viewModel;
@@ -48,6 +49,7 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+        binding.setViewModel(viewModel);
         mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
         binding.tabLayoutHome.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -55,10 +57,22 @@ public class HomeFragment extends Fragment {
             public void onTabSelected(TabLayout.Tab tab) {
                 mainViewModel.setLoading(true);
                 if (tab.getPosition() == 0) {
-                    viewModel.pullTasks(new HashMap<>());
+                    viewModel.observeTasks(new HashMap<>())
+                            .subscribe(result -> viewModel.getTasks().setValue(result),
+                                    error -> {
+                                        Log.e(TAG, "observeTasks: " + error.getMessage());
+                                        mainViewModel.getToastMessage().setValue("Error loading tasks. Try again later!");
+                                    },
+                                    () -> mainViewModel.setLoading(false));
                     binding.recyclerViewHome.setAdapter(taskAdapter);
                 } else {
-                    viewModel.pullSubmissions(new HashMap<>());
+                    viewModel.observeSubmissions(new HashMap<>())
+                            .subscribe(result -> viewModel.getSubmissions().setValue(result),
+                                    error -> {
+                                        Log.e(TAG, "observeSubmissions: " + error.getMessage());
+                                        mainViewModel.getToastMessage().setValue("Error loading submissions. Try again later!");
+                                    },
+                                    () -> mainViewModel.setLoading(false));
                     binding.recyclerViewHome.setAdapter(submissionAdapter);
                 }
             }
@@ -69,17 +83,15 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-
+                onTabSelected(tab);
             }
         });
-        taskAdapter = new TaskAdapter(getContext(), null);
-        submissionAdapter = new SubmissionAdapter(getContext(), null);
+        taskAdapter = new TaskAdapter(getContext(), new ArrayList<>());
+        submissionAdapter = new SubmissionAdapter(getContext(), new ArrayList<>());
         initRecyclerView();
         observeData();
         setUpItemTouchHelper();
-
-        mainViewModel.setLoading(true);
-        viewModel.pullTasks(new HashMap<>());
+        binding.tabLayoutHome.getTabAt(0).select();
     }
 
     private void setUpItemTouchHelper() {
@@ -106,24 +118,21 @@ public class HomeFragment extends Fragment {
     private void observeData() {
         viewModel.getTasks().observe(getViewLifecycleOwner(), tasks -> {
             Log.e(TAG, "tasks->onChanged: " + tasks.size());
-            mainViewModel.setLoading(false);
             taskAdapter.updateList(tasks);
         });
         viewModel.getSubmissions().observe(getViewLifecycleOwner(), submissions -> {
             Log.e(TAG, "submissions->onChanged: " + submissions.size());
-            mainViewModel.setLoading(false);
             submissionAdapter.updateList(submissions);
         });
-        viewModel.getToastMessage().observe(getViewLifecycleOwner(),
-                msg -> {
-                    if (msg != null && !msg.isEmpty()) {
-                        Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
-                    }
-                });
+
     }
 
     private void initRecyclerView() {
         binding.recyclerViewHome.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.recyclerViewHome.setAdapter(taskAdapter);
+    }
+
+    @Override
+    public void onClick(View v) {
     }
 }

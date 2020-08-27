@@ -5,7 +5,10 @@ import androidx.lifecycle.LiveData;
 import com.example.onlinejudge.api.OnlineJudgeApi;
 import com.example.onlinejudge.db.TaskDao;
 import com.example.onlinejudge.models.Submission;
+import com.example.onlinejudge.models.Tag;
 import com.example.onlinejudge.models.Task;
+import com.example.onlinejudge.models.User;
+import com.example.onlinejudge.models.UserCredentials;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -31,6 +34,14 @@ public class OnlineJudgeRepository {
 
     public Observable<ArrayList<Submission>> getSubmissions(Map<String, Object> options) {
         return apiService.getSubmissions(options);
+    }
+
+    public Observable<ArrayList<Tag>> getTags() {
+        return apiService.getTags();
+    }
+
+    public Observable<User> authenticateUser(UserCredentials userCredentials) {
+        return apiService.authenticateUser(userCredentials);
     }
 
     public void insertSavedTask(Task task) {

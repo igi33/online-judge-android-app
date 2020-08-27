@@ -10,24 +10,69 @@
             type="com.example.onlinejudge.viewmodels.MainViewModel" />
     </data>
 
-    <LinearLayout
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.MainActivity"
-        android:orientation="vertical">
+        tools:openDrawer="start">
 
-        <com.google.android.material.progressindicator.ProgressIndicator
-            style="@style/Widget.MaterialComponents.ProgressIndicator.Linear.Indeterminate"
-            app:indicatorColor="?attr/colorPrimary"
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="@{viewModel.isLoading ? View.VISIBLE : View.INVISIBLE}"
-            android:id="@+id/progress_bar_top" />
+            android:layout_height="match_parent"
+            tools:context=".ui.MainActivity">
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/fragment_container" />
+            <com.google.android.material.appbar.AppBarLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_insetEdge="top">
 
-    </LinearLayout>
+                <com.google.android.material.appbar.MaterialToolbar
+                    android:id="@+id/toolbar_top"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    app:title="@string/app_name"
+
+                    app:navigationIcon="@drawable/ic_menu_24dp"
+                    style="@style/Widget.MaterialComponents.Toolbar.Primary" />
+
+                <!--
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text='@{viewModel.isLoggedIn ? "Hello " + viewModel.user.username + "!" : "Hello guest!"}'/>-->
+
+            </com.google.android.material.appbar.AppBarLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_dodgeInsetEdges="top">
+
+                <com.google.android.material.progressindicator.ProgressIndicator
+                    style="@style/Widget.MaterialComponents.ProgressIndicator.Linear.Indeterminate"
+                    app:indicatorColor="?attr/colorPrimary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="@{viewModel.isLoading ? View.VISIBLE : View.INVISIBLE}"
+                    android:id="@+id/progress_bar_top"/>
+
+                <androidx.fragment.app.FragmentContainerView
+                    android:id="@+id/fragment_container_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:tag="fragment_container"/>
+            </LinearLayout>
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+        <com.google.android.material.navigation.NavigationView
+            android:id="@+id/navigation_drawer"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            app:headerLayout="@layout/navigation_drawer" />
+
+    </androidx.drawerlayout.widget.DrawerLayout>
+
 </layout>

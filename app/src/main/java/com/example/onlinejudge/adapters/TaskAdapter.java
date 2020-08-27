@@ -41,7 +41,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         return mList == null ? 0 : mList.size();
     }
 
-    class TaskViewHolder extends RecyclerView.ViewHolder {
+    static class TaskViewHolder extends RecyclerView.ViewHolder {
         private ListItemTaskBinding itemBinding;
 
         public TaskViewHolder(ListItemTaskBinding itemBinding) {
