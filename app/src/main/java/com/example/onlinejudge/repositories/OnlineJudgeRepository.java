@@ -32,6 +32,10 @@ public class OnlineJudgeRepository {
         return apiService.getTasks(options);
     }
 
+    public Observable<Void> deleteTask(int id) {
+        return apiService.deleteTask(id);
+    }
+
     public Observable<ArrayList<Submission>> getSubmissions(Map<String, Object> options) {
         return apiService.getSubmissions(options);
     }

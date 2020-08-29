@@ -17,6 +17,7 @@ import com.example.onlinejudge.adapters.TaskAdapter;
 import com.example.onlinejudge.auth.SessionManager;
 import com.example.onlinejudge.databinding.FragmentHomeBinding;
 import com.example.onlinejudge.databinding.FragmentLoginBinding;
+import com.example.onlinejudge.helpers.JwtTokenInterceptor;
 import com.example.onlinejudge.viewmodels.HomeViewModel;
 import com.example.onlinejudge.viewmodels.LoginViewModel;
 import com.example.onlinejudge.viewmodels.MainViewModel;
@@ -34,8 +35,11 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     private FragmentLoginBinding binding;
     private MainViewModel mainViewModel;
     private LoginViewModel viewModel;
+
     @Inject
     SessionManager sessionManager;
+    @Inject
+    JwtTokenInterceptor jwtTokenInterceptor;
 
     @Nullable
     @Override
@@ -64,9 +68,10 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                         .subscribe(
                                 result -> {
                                     sessionManager.createLoginSession(result);
+                                    jwtTokenInterceptor.setToken(result.getToken());
                                     mainViewModel.isLoggedIn().setValue(true);
                                     mainViewModel.getUser().setValue(result);
-                                    mainViewModel.setToastMessage("Successfully logged in!");
+                                    mainViewModel.setToastMessage("Welcome back, " + result.getUsername() + "!");
                                     mainViewModel.setFragment(new HomeFragment());
                                 },
                                 error -> {

@@ -23,9 +23,4 @@
         android:contentDescription="logout"
         app:showAsAction="never" />
 
-    <item
-        android:id="@+id/item_more"
-        android:title="More"
-        android:contentDescription="more"
-        app:showAsAction="never" />
 </menu>

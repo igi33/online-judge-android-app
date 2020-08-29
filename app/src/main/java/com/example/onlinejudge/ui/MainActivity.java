@@ -20,8 +20,11 @@ import com.example.onlinejudge.R;
 import com.example.onlinejudge.adapters.TagAdapter;
 import com.example.onlinejudge.auth.SessionManager;
 import com.example.onlinejudge.databinding.ActivityMainBinding;
+import com.example.onlinejudge.helpers.JwtTokenInterceptor;
 import com.example.onlinejudge.helpers.RecyclerItemClickListener;
 import com.example.onlinejudge.models.Tag;
+import com.example.onlinejudge.models.User;
+import com.example.onlinejudge.ui.fragments.HomeFragment;
 import com.example.onlinejudge.ui.fragments.LoginFragment;
 import com.example.onlinejudge.viewmodels.MainViewModel;
 
@@ -35,13 +38,16 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "Main";
+    private static final String TAG = "MainActivity";
     private ActivityMainBinding binding;
     private MainViewModel viewModel;
     private ActionBarDrawerToggle toggle;
     private TagAdapter tagAdapter;
+
     @Inject
     SessionManager sessionManager;
+    @Inject
+    JwtTokenInterceptor jwtTokenInterceptor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +60,12 @@ public class MainActivity extends AppCompatActivity {
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
         binding.setViewModel(viewModel);
         viewModel.isLoggedIn().setValue(sessionManager.isLoggedIn());
-        viewModel.getUser().setValue(sessionManager.isLoggedIn() ? sessionManager.getUserDetails() : null);
+
+        if (sessionManager.isLoggedIn()) {
+            User user = sessionManager.getUserDetails();
+            viewModel.getUser().setValue(user);
+            jwtTokenInterceptor.setToken(user.getToken());
+        }
 
         toggle = new ActionBarDrawerToggle(
                 this, binding.drawerLayout, binding.toolbarTop, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
@@ -63,16 +74,15 @@ public class MainActivity extends AppCompatActivity {
                     // this where Drawer start opening
                     viewModel.setLoading(true);
                     viewModel.observeTags()
-                            .subscribe(result -> viewModel.getTags().setValue(result),
-                                    error -> {
-                                        Log.e(TAG, "observeTags: " + error.getMessage());
-                                    },
-                                    () -> viewModel.setLoading(false));
+                            .subscribe(result -> {
+                                result.add(0, new Tag(0, "All", ""));
+                                viewModel.getTags().setValue(result);
+                            },
+                            error -> {
+                                Log.e(TAG, "observeTags: " + error.getMessage());
+                            },
+                            () -> viewModel.setLoading(false));
                 }
-            }
-            /** Called when a drawer has settled in a completely open state. */
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
             }
         };
         binding.drawerLayout.addDrawerListener(toggle);
@@ -104,7 +114,9 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onItemClick(View view, int position) {
                         TextView tv = view.findViewById(R.id.text_view_tag_name);
-                        viewModel.setToastMessage("tag name " + tv.getText() + "tag id: " + tv.getTag());
+                        int tagId = Integer.parseInt(tv.getTag().toString());
+                        viewModel.setTitle(tagId > 0 ? "Tagged " + tv.getText() : getResources().getString(R.string.app_name));
+                        viewModel.setFragment(new HomeFragment(tagId));
                         binding.drawerLayout.closeDrawers();
                     }
 
@@ -144,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 case R.id.item_logout:
                     sessionManager.logoutUser();
+                    jwtTokenInterceptor.setToken(null);
                     viewModel.isLoggedIn().setValue(false);
                     viewModel.getUser().setValue(null);
                     return true;

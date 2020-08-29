@@ -14,9 +14,11 @@ import dagger.hilt.android.components.ApplicationComponent;
 @Module
 @InstallIn(ApplicationComponent.class)
 public class AuthModule {
+
     @Provides
     @Singleton
     public static SessionManager provideSessionManager(Application application) {
         return new SessionManager(application);
     }
+
 }

@@ -6,8 +6,6 @@ import android.content.SharedPreferences;
 
 import com.example.onlinejudge.models.User;
 
-import javax.inject.Inject;
-
 public class SessionManager {
     // Shared Preferences
     SharedPreferences pref;
@@ -26,7 +24,6 @@ public class SessionManager {
     private static final String KEY_TOKEN = "usertoken";
 
     @SuppressLint("CommitPrefEdits")
-    @Inject
     public SessionManager(Context context) {
         this._context = context;
         pref = _context.getSharedPreferences(PREF_NAME, PRIVATE_MODE);

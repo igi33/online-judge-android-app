@@ -25,17 +25,29 @@ import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class HomeFragment extends Fragment implements View.OnClickListener {
+public class HomeFragment extends Fragment {
     private static final String TAG = "HomeFragment";
     private FragmentHomeBinding binding;
     private MainViewModel mainViewModel;
     private HomeViewModel viewModel;
     private TaskAdapter taskAdapter;
     private SubmissionAdapter submissionAdapter;
+    private int tagIdFilter = 0;
+
+    public HomeFragment() {}
+
+    public HomeFragment(int tagIdFilter) {
+        this.tagIdFilter = tagIdFilter;
+    }
+
+    public void setTagIdFilter(int tagId) {
+        tagIdFilter = tagId;
+    }
 
     @Nullable
     @Override
@@ -55,9 +67,14 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         binding.tabLayoutHome.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
+                Map<String, Object> options = new HashMap<>();
+                if (tagIdFilter > 0) {
+                    options.put("tagId", tagIdFilter);
+                }
+
                 mainViewModel.setLoading(true);
                 if (tab.getPosition() == 0) {
-                    viewModel.observeTasks(new HashMap<>())
+                    viewModel.observeTasks(options)
                             .subscribe(result -> viewModel.getTasks().setValue(result),
                                     error -> {
                                         Log.e(TAG, "observeTasks: " + error.getMessage());
@@ -66,7 +83,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                                     () -> mainViewModel.setLoading(false));
                     binding.recyclerViewHome.setAdapter(taskAdapter);
                 } else {
-                    viewModel.observeSubmissions(new HashMap<>())
+                    viewModel.observeSubmissions(options)
                             .subscribe(result -> viewModel.getSubmissions().setValue(result),
                                     error -> {
                                         Log.e(TAG, "observeSubmissions: " + error.getMessage());
@@ -88,7 +105,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         });
         taskAdapter = new TaskAdapter(getContext(), new ArrayList<>());
         submissionAdapter = new SubmissionAdapter(getContext(), new ArrayList<>());
-        initRecyclerView();
+
+        binding.recyclerViewHome.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.recyclerViewHome.setAdapter(taskAdapter);
+
         observeData();
         setUpItemTouchHelper();
         binding.tabLayoutHome.getTabAt(0).select();
@@ -125,14 +145,5 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
             submissionAdapter.updateList(submissions);
         });
 
-    }
-
-    private void initRecyclerView() {
-        binding.recyclerViewHome.setLayoutManager(new LinearLayoutManager(getContext()));
-        binding.recyclerViewHome.setAdapter(taskAdapter);
-    }
-
-    @Override
-    public void onClick(View v) {
     }
 }

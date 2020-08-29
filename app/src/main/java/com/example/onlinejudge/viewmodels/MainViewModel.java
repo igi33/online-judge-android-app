@@ -30,11 +30,19 @@ public class MainViewModel extends ViewModel {
     private MutableLiveData<Boolean> isLoggedIn = new MutableLiveData<>(false);
     private MutableLiveData<User> user = new MutableLiveData<>();
     private MutableLiveData<ArrayList<Tag>> tags = new MutableLiveData<>();
+    private MutableLiveData<String> title = new MutableLiveData<>("Online Judge");
 
     @ViewModelInject
     public MainViewModel(OnlineJudgeRepository repository, @Assisted SavedStateHandle savedStateHandle) {
         this.savedStateHandle = savedStateHandle;
         this.repository = repository;
+    }
+
+    public MutableLiveData<String> getTitle() {
+        return title;
+    }
+    public void setTitle(String title) {
+        this.title.setValue(title);
     }
 
     public MutableLiveData<Boolean> isLoggedIn() {
@@ -48,7 +56,6 @@ public class MainViewModel extends ViewModel {
     public MutableLiveData<Boolean> isLoading() {
         return isLoading;
     }
-
     public void setLoading(boolean isLoading) {
         this.isLoading.setValue(isLoading);
     }
@@ -56,7 +63,6 @@ public class MainViewModel extends ViewModel {
     public MutableLiveData<String> getToastMessage() {
         return toastMessage;
     }
-
     public void setToastMessage(String toastMessage) {
         this.toastMessage.setValue(toastMessage);
     }
@@ -64,7 +70,6 @@ public class MainViewModel extends ViewModel {
     public MutableLiveData<Fragment> getFragment() {
         return fragment;
     }
-
     public void setFragment(Fragment fragment) {
         this.fragment.setValue(fragment);
     }
