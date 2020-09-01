@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class SavedTasksFragment extends Fragment {
+public class SavedTasksFragment extends BaseFragment {
     private FragmentSavedTasksBinding binding;
     private HomeViewModel viewModel;
     private TaskAdapter adapter;

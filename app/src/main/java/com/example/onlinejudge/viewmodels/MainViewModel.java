@@ -1,5 +1,7 @@
 package com.example.onlinejudge.viewmodels;
 
+import android.view.View;
+
 import androidx.databinding.ObservableBoolean;
 import androidx.fragment.app.Fragment;
 import androidx.hilt.Assisted;
@@ -30,12 +32,17 @@ public class MainViewModel extends ViewModel {
     private MutableLiveData<Boolean> isLoggedIn = new MutableLiveData<>(false);
     private MutableLiveData<User> user = new MutableLiveData<>();
     private MutableLiveData<ArrayList<Tag>> tags = new MutableLiveData<>();
+    private MutableLiveData<View.OnClickListener> fabOnClickListener = new MutableLiveData<>();
     private MutableLiveData<String> title = new MutableLiveData<>("Online Judge");
 
     @ViewModelInject
     public MainViewModel(OnlineJudgeRepository repository, @Assisted SavedStateHandle savedStateHandle) {
         this.savedStateHandle = savedStateHandle;
         this.repository = repository;
+    }
+
+    public MutableLiveData<View.OnClickListener> getFabOnClickListener() {
+        return fabOnClickListener;
     }
 
     public MutableLiveData<String> getTitle() {

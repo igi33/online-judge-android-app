@@ -6,6 +6,11 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="textButton">@style/Widget.MaterialComponents.Button.TextButton</item>
+        <item name="outlinedButton">@style/Widget.MaterialComponents.Button.OutlinedButton</item>
     </style>
+
+    <attr name="textButton" format="reference"/>
+    <attr name="outlinedButton" format="reference"/>
 
 </resources>

@@ -5,7 +5,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.example.onlinejudge.viewmodels.LoginViewModel" />
+            type="com.example.onlinejudge.viewmodels.RegisterViewModel" />
     </data>
 
     <LinearLayout
@@ -19,10 +19,23 @@
             android:layout_height="wrap_content"
             android:hint="Username">
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/edit_text_username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text"/>
+                android:inputType="text"
+                android:id="@+id/edit_text_username"
+                android:hint=""/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Email">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress"
+                android:id="@+id/edit_text_email"
+                android:hint=""/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -36,11 +49,22 @@
                 android:id="@+id/edit_text_password" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Confirm password">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:id="@+id/edit_text_password_confirm" />
+        </com.google.android.material.textfield.TextInputLayout>
+
         <com.google.android.material.button.MaterialButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Login"
-            android:id="@+id/button_login" />
+            android:text="Register"
+            android:id="@+id/button_register" />
 
     </LinearLayout>
 </layout>

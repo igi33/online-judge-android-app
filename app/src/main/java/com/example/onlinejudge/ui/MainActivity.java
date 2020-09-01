@@ -26,6 +26,7 @@ import com.example.onlinejudge.models.Tag;
 import com.example.onlinejudge.models.User;
 import com.example.onlinejudge.ui.fragments.HomeFragment;
 import com.example.onlinejudge.ui.fragments.LoginFragment;
+import com.example.onlinejudge.ui.fragments.RegisterFragment;
 import com.example.onlinejudge.viewmodels.MainViewModel;
 
 import org.jetbrains.annotations.NotNull;
@@ -35,6 +36,7 @@ import java.util.ArrayList;
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity {
@@ -43,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private MainViewModel viewModel;
     private ActionBarDrawerToggle toggle;
     private TagAdapter tagAdapter;
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     @Inject
     SessionManager sessionManager;
@@ -57,23 +60,26 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbarTop);
 
+        // initialize and bind view model
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
         binding.setViewModel(viewModel);
-        viewModel.isLoggedIn().setValue(sessionManager.isLoggedIn());
 
+        // set logged in state based on session manager
+        viewModel.isLoggedIn().setValue(sessionManager.isLoggedIn());
         if (sessionManager.isLoggedIn()) {
             User user = sessionManager.getUserDetails();
             viewModel.getUser().setValue(user);
             jwtTokenInterceptor.setToken(user.getToken());
         }
 
+        // load tags when the drawer is opening
         toggle = new ActionBarDrawerToggle(
                 this, binding.drawerLayout, binding.toolbarTop, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
             @Override public void onDrawerStateChanged(int newState) {
                 if (newState == DrawerLayout.STATE_SETTLING && !binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
                     // this where Drawer start opening
                     viewModel.setLoading(true);
-                    viewModel.observeTags()
+                    compositeDisposable.add(viewModel.observeTags()
                             .subscribe(result -> {
                                 result.add(0, new Tag(0, "All", ""));
                                 viewModel.getTags().setValue(result);
@@ -81,12 +87,13 @@ public class MainActivity extends AppCompatActivity {
                             error -> {
                                 Log.e(TAG, "observeTags: " + error.getMessage());
                             },
-                            () -> viewModel.setLoading(false));
+                            () -> viewModel.setLoading(false)));
                 }
             }
         };
         binding.drawerLayout.addDrawerListener(toggle);
 
+        // update fragment in the view to reflect view model's assigned fragment
         viewModel.getFragment().observe(this, fragment -> getSupportFragmentManager()
                 .beginTransaction()
                 .setCustomAnimations(R.anim.fragment_open_enter, R.anim.fragment_open_exit,
@@ -94,17 +101,20 @@ public class MainActivity extends AppCompatActivity {
                 .replace(R.id.fragment_container_view, fragment)
                 .commit());
 
+        // show toast message when the view model's message changed
         viewModel.getToastMessage().observe(this, msg -> {
                 if (msg != null && !msg.isEmpty()) {
                     Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
                 }
             });
 
+        // update tag adapter list when view model's tags changed
         viewModel.getTags().observe(this, tags -> {
             Log.e(TAG, "tags->onChanged: " + tags.size());
             tagAdapter.updateList(tags);
         });
 
+        // initialize tag adapter, recycler view and set click actions
         tagAdapter = new TagAdapter(this, new ArrayList<>());
         RecyclerView recyclerView = binding.navigationDrawer.getHeaderView(0).findViewById(R.id.recycler_view_drawer);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -116,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
                         TextView tv = view.findViewById(R.id.text_view_tag_name);
                         int tagId = Integer.parseInt(tv.getTag().toString());
                         viewModel.setTitle(tagId > 0 ? "Tagged " + tv.getText() : getResources().getString(R.string.app_name));
-                        viewModel.setFragment(new HomeFragment(tagId));
+                        viewModel.setFragment(HomeFragment.newInstance(tagId));
                         binding.drawerLayout.closeDrawers();
                     }
 
@@ -124,12 +134,16 @@ public class MainActivity extends AppCompatActivity {
                     public void onLongItemClick(View view, int position) {}
                 })
         );
+
+        viewModel.getFabOnClickListener().observe(this, onClickListener -> {
+            binding.floatingActionButton.setOnClickListener(onClickListener);
+        });
     }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        // Sync the toggle state after onRestoreInstanceState has occurred.
+        // sync the toggle state after onRestoreInstanceState has occurred
         toggle.syncState();
     }
 
@@ -141,29 +155,40 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
+        // inflate the menu, this adds items to the action bar if it is present
         getMenuInflater().inflate(R.menu.top_app_bar, menu);
         viewModel.isLoggedIn().observe(this, isLoggedIn -> {
             binding.toolbarTop.getMenu().findItem(R.id.item_login).setVisible(!isLoggedIn);
             binding.toolbarTop.getMenu().findItem(R.id.item_profile).setVisible(isLoggedIn);
             binding.toolbarTop.getMenu().findItem(R.id.item_logout).setVisible(isLoggedIn);
+            binding.toolbarTop.getMenu().findItem(R.id.item_register).setVisible(!isLoggedIn);
         });
 
+        // set on click actions for the options in the menu at the right
         binding.toolbarTop.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
                 case R.id.item_login:
-                    viewModel.setFragment(new LoginFragment());
+                    viewModel.setFragment(LoginFragment.newInstance());
                     return true;
                 case R.id.item_logout:
                     sessionManager.logoutUser();
                     jwtTokenInterceptor.setToken(null);
                     viewModel.isLoggedIn().setValue(false);
                     viewModel.getUser().setValue(null);
+                    viewModel.setFragment(HomeFragment.newInstance(0));
                     return true;
+                case R.id.item_register:
+                    viewModel.setFragment(RegisterFragment.newInstance());
                 default:
                     return false;
             }
         });
         return true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        compositeDisposable.dispose();
     }
 }

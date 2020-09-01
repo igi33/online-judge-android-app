@@ -2,6 +2,7 @@ package com.example.onlinejudge.api;
 
 import com.example.onlinejudge.models.ComputerLanguage;
 import com.example.onlinejudge.models.Submission;
+import com.example.onlinejudge.models.SubmissionSkeleton;
 import com.example.onlinejudge.models.Tag;
 import com.example.onlinejudge.models.Task;
 import com.example.onlinejudge.models.User;
@@ -38,7 +39,7 @@ public interface OnlineJudgeApi {
 
     // computer languages
     @GET("computerlanguage")
-    Call<ArrayList<ComputerLanguage>> getComputerLanguages();
+    Observable<ArrayList<ComputerLanguage>> getComputerLanguages();
 
     // submissions
     @GET("submission")
@@ -47,8 +48,8 @@ public interface OnlineJudgeApi {
     Observable<Submission> getSubmission(@Path("id") int id);
     @GET("submission/task/{taskId}/best")
     Observable<ArrayList<Submission>> getBestSubmissionsOfTask(@Path("taskId") int taskId, @QueryMap Map<String, Object> options);
-    @POST("submission")
-    Observable<Submission> postSubmission(@Body Submission submission);
+    @POST("submission/task/{taskId}")
+    Observable<Submission> postSubmission(@Path("taskId") int taskId, @Body SubmissionSkeleton submissionSkeleton);
 
     // tags
     @GET("tag")
@@ -64,7 +65,7 @@ public interface OnlineJudgeApi {
     @POST("user/authenticate")
     Observable<User> authenticateUser(@Body UserCredentials userCredentials);
     @POST("user")
-    Observable<User> postUser(@Body User user);
+    Observable<User> postUser(@Body UserCredentials userCredentials);
     @PUT("user/{id}")
     Observable<Void> putUser(@Path("id") int id, @Body User user);
     @DELETE("user/{id}")

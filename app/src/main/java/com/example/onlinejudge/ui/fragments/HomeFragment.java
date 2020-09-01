@@ -5,19 +5,21 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.onlinejudge.R;
 import com.example.onlinejudge.adapters.SubmissionAdapter;
 import com.example.onlinejudge.adapters.TaskAdapter;
 import com.example.onlinejudge.databinding.FragmentHomeBinding;
+import com.example.onlinejudge.helpers.RecyclerItemClickListener;
 import com.example.onlinejudge.models.Task;
 import com.example.onlinejudge.viewmodels.HomeViewModel;
 import com.example.onlinejudge.viewmodels.MainViewModel;
@@ -30,29 +32,68 @@ import java.util.Map;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class HomeFragment extends Fragment {
+public class HomeFragment extends BaseFragment {
     private static final String TAG = "HomeFragment";
+    private static final String ARG_TAGID = "tagId";
+    private static final String ARG_SHOW_SUBMISSIONS = "showSubmissions";
+
     private FragmentHomeBinding binding;
     private MainViewModel mainViewModel;
     private HomeViewModel viewModel;
     private TaskAdapter taskAdapter;
     private SubmissionAdapter submissionAdapter;
-    private int tagIdFilter = 0;
+    private int tagId;
+    private boolean showSubmissions;
 
     public HomeFragment() {}
 
-    public HomeFragment(int tagIdFilter) {
-        this.tagIdFilter = tagIdFilter;
+    /**
+     * Use this factory method to create a new instance of
+     * this fragment using the provided parameters.
+     *
+     * @param tagId ID of the task tag by which the listed tasks are filtered.
+     * @return A new instance of fragment HomeFragment.
+     */
+    public static HomeFragment newInstance(int tagId) {
+        HomeFragment fragment = new HomeFragment();
+        Bundle args = new Bundle();
+        args.putInt(ARG_TAGID, tagId);
+        args.putBoolean(ARG_SHOW_SUBMISSIONS, false);
+        fragment.setArguments(args);
+        return fragment;
     }
 
-    public void setTagIdFilter(int tagId) {
-        tagIdFilter = tagId;
+    /**
+     * Use this factory method to create a new instance of
+     * this fragment using the provided parameters.
+     *
+     * @param tagId ID of the task tag by which the listed tasks are filtered.
+     * @param showSubmissions If true, will show the submissions tab when the fragment loads
+     * @return A new instance of fragment HomeFragment.
+     */
+    public static HomeFragment newInstance(int tagId, boolean showSubmissions) {
+        HomeFragment fragment = new HomeFragment();
+        Bundle args = new Bundle();
+        args.putInt(ARG_TAGID, tagId);
+        args.putBoolean(ARG_SHOW_SUBMISSIONS, showSubmissions);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            tagId = getArguments().getInt(ARG_TAGID);
+            showSubmissions = getArguments().getBoolean(ARG_SHOW_SUBMISSIONS);
+        }
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
+        binding.setLifecycleOwner(this);
         return binding.getRoot();
     }
 
@@ -68,28 +109,28 @@ public class HomeFragment extends Fragment {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 Map<String, Object> options = new HashMap<>();
-                if (tagIdFilter > 0) {
-                    options.put("tagId", tagIdFilter);
+                if (tagId > 0) {
+                    options.put("tagId", tagId);
                 }
 
                 mainViewModel.setLoading(true);
                 if (tab.getPosition() == 0) {
-                    viewModel.observeTasks(options)
+                    compositeDisposable.add(viewModel.observeTasks(options)
                             .subscribe(result -> viewModel.getTasks().setValue(result),
                                     error -> {
                                         Log.e(TAG, "observeTasks: " + error.getMessage());
                                         mainViewModel.getToastMessage().setValue("Error loading tasks. Try again later!");
                                     },
-                                    () -> mainViewModel.setLoading(false));
+                                    () -> mainViewModel.setLoading(false)));
                     binding.recyclerViewHome.setAdapter(taskAdapter);
                 } else {
-                    viewModel.observeSubmissions(options)
+                    compositeDisposable.add(viewModel.observeSubmissions(options)
                             .subscribe(result -> viewModel.getSubmissions().setValue(result),
                                     error -> {
                                         Log.e(TAG, "observeSubmissions: " + error.getMessage());
                                         mainViewModel.getToastMessage().setValue("Error loading submissions. Try again later!");
                                     },
-                                    () -> mainViewModel.setLoading(false));
+                                    () -> mainViewModel.setLoading(false)));
                     binding.recyclerViewHome.setAdapter(submissionAdapter);
                 }
             }
@@ -106,12 +147,31 @@ public class HomeFragment extends Fragment {
         taskAdapter = new TaskAdapter(getContext(), new ArrayList<>());
         submissionAdapter = new SubmissionAdapter(getContext(), new ArrayList<>());
 
+        binding.recyclerViewHome.setNestedScrollingEnabled(false);
         binding.recyclerViewHome.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.recyclerViewHome.setAdapter(taskAdapter);
+        binding.recyclerViewHome.addOnItemTouchListener(
+                new RecyclerItemClickListener(getActivity(), binding.recyclerViewHome, new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        if (binding.tabLayoutHome.getTabAt(0).isSelected()) {
+                            TextView tvId = view.findViewById(R.id.text_view_task_id);
+                            int taskId = Integer.parseInt(tvId.getText().toString());
+                            TextView tvName = view.findViewById(R.id.text_view_task_name);
+                            String taskName = tvName.getText().toString();
+                            mainViewModel.setTitle(taskName);
+                            mainViewModel.setFragment(TaskFragment.newInstance(taskId));
+                        }
+                    }
+
+                    @Override
+                    public void onLongItemClick(View view, int position) {}
+                })
+        );
 
         observeData();
         setUpItemTouchHelper();
-        binding.tabLayoutHome.getTabAt(0).select();
+        binding.tabLayoutHome.getTabAt(showSubmissions ? 1 : 0).select();
     }
 
     private void setUpItemTouchHelper() {

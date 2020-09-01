@@ -5,32 +5,27 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.onlinejudge.R;
-import com.example.onlinejudge.adapters.SubmissionAdapter;
-import com.example.onlinejudge.adapters.TaskAdapter;
 import com.example.onlinejudge.auth.SessionManager;
-import com.example.onlinejudge.databinding.FragmentHomeBinding;
 import com.example.onlinejudge.databinding.FragmentLoginBinding;
 import com.example.onlinejudge.helpers.JwtTokenInterceptor;
-import com.example.onlinejudge.viewmodels.HomeViewModel;
 import com.example.onlinejudge.viewmodels.LoginViewModel;
 import com.example.onlinejudge.viewmodels.MainViewModel;
-import com.google.android.material.tabs.TabLayout;
-
-import java.util.HashMap;
 
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
+import static android.content.Context.INPUT_METHOD_SERVICE;
+
 @AndroidEntryPoint
-public class LoginFragment extends Fragment implements View.OnClickListener {
+public class LoginFragment extends BaseFragment implements View.OnClickListener {
     private static final String TAG = "LoginFragment";
     private FragmentLoginBinding binding;
     private MainViewModel mainViewModel;
@@ -41,10 +36,22 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     @Inject
     JwtTokenInterceptor jwtTokenInterceptor;
 
+    public LoginFragment() {}
+
+    public static LoginFragment newInstance() {
+        return new LoginFragment();
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentLoginBinding.inflate(inflater, container, false);
+        binding.setLifecycleOwner(this);
         return binding.getRoot();
     }
 
@@ -61,10 +68,20 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button_login:
+                // hide keyboard if active
+                try {
+                    View view = getActivity() != null ? getActivity().getWindow().getCurrentFocus() : null;
+                    if (view != null && view.getWindowToken() != null) {
+                        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    }
+                } catch (Exception e) {}
+
                 String username = binding.editTextUsername.getText().toString();
                 String password = binding.editTextPassword.getText().toString();
+
                 mainViewModel.setLoading(true);
-                viewModel.observeLogin(username, password)
+                compositeDisposable.add(viewModel.observeLogin(username, password)
                         .subscribe(
                                 result -> {
                                     sessionManager.createLoginSession(result);
@@ -72,13 +89,13 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                                     mainViewModel.isLoggedIn().setValue(true);
                                     mainViewModel.getUser().setValue(result);
                                     mainViewModel.setToastMessage("Welcome back, " + result.getUsername() + "!");
-                                    mainViewModel.setFragment(new HomeFragment());
+                                    mainViewModel.setFragment(HomeFragment.newInstance(0));
                                 },
                                 error -> {
                                     Log.e(TAG, "observeLogin: " + error.getMessage());
                                     mainViewModel.setToastMessage("Wrong username or password. Please try again!");
                                 },
-                                () -> mainViewModel.setLoading(false));
+                                () -> mainViewModel.setLoading(false)));
                 break;
         }
     }

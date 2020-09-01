@@ -39,10 +39,6 @@ public class ComputerLanguage {
 
     @Override
     public String toString() {
-        return "ComputerLanguage{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", extension='" + extension + '\'' +
-                '}';
+        return name;
     }
 }

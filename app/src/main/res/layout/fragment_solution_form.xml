@@ -1,11 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
         <variable
             name="viewModel"
-            type="com.example.onlinejudge.viewmodels.LoginViewModel" />
+            type="com.example.onlinejudge.viewmodels.SolutionFormViewModel" />
     </data>
 
     <LinearLayout
@@ -14,33 +13,30 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <com.google.android.material.textfield.TextInputLayout
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/spinner_lang"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Username">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/edit_text_username"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text"/>
-        </com.google.android.material.textfield.TextInputLayout>
+            android:layout_height="wrap_content" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Password">
+            android:hint="Code">
             <com.google.android.material.textfield.TextInputEditText
+                android:gravity="top"
+                android:id="@+id/edit_text_source_code"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPassword"
-                android:id="@+id/edit_text_password" />
+                android:lines="15"
+                android:inputType="textMultiLine"
+                android:typeface="monospace" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.button.MaterialButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Login"
-            android:id="@+id/button_login" />
+            android:text="Submit"
+            android:id="@+id/button_solution_submit" />
 
     </LinearLayout>
 </layout>
