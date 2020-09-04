@@ -62,6 +62,7 @@ public class LoginFragment extends BaseFragment implements View.OnClickListener 
         viewModel = new ViewModelProvider(this).get(LoginViewModel.class);
         mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
         binding.setViewModel(viewModel);
+        mainViewModel.setTitle("Login");
     }
 
     @Override
@@ -84,6 +85,7 @@ public class LoginFragment extends BaseFragment implements View.OnClickListener 
                 compositeDisposable.add(viewModel.observeLogin(username, password)
                         .subscribe(
                                 result -> {
+                                    mainViewModel.setLoading(false);
                                     sessionManager.createLoginSession(result);
                                     jwtTokenInterceptor.setToken(result.getToken());
                                     mainViewModel.isLoggedIn().setValue(true);
@@ -92,10 +94,12 @@ public class LoginFragment extends BaseFragment implements View.OnClickListener 
                                     mainViewModel.setFragment(HomeFragment.newInstance(0));
                                 },
                                 error -> {
+                                    mainViewModel.setLoading(false);
                                     Log.e(TAG, "observeLogin: " + error.getMessage());
                                     mainViewModel.setToastMessage("Wrong username or password. Please try again!");
-                                },
-                                () -> mainViewModel.setLoading(false)));
+                                }
+                        )
+                );
                 break;
         }
     }

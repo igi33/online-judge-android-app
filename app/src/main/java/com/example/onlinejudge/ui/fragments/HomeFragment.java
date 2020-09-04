@@ -105,6 +105,22 @@ public class HomeFragment extends BaseFragment {
         binding.setViewModel(viewModel);
         mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
+        if (tagId > 0) {
+            mainViewModel.setLoading(true);
+            compositeDisposable.add(viewModel.observeTag(tagId)
+                    .subscribe(tag -> {
+                                mainViewModel.setLoading(false);
+                                mainViewModel.setTitle("Tagged " + tag.getName());
+                            },
+                            error -> {
+                                mainViewModel.setLoading(false);
+                                Log.e(TAG, "observeTag: " + error.getMessage());
+                                mainViewModel.getToastMessage().setValue("Error loading tag. Try again later!");
+                            }));
+        } else {
+            mainViewModel.setTitle(getResources().getString(R.string.app_name));
+        }
+
         binding.tabLayoutHome.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -116,8 +132,12 @@ public class HomeFragment extends BaseFragment {
                 mainViewModel.setLoading(true);
                 if (tab.getPosition() == 0) {
                     compositeDisposable.add(viewModel.observeTasks(options)
-                            .subscribe(result -> viewModel.getTasks().setValue(result),
+                            .subscribe(result -> {
+                                        mainViewModel.setLoading(false);
+                                        viewModel.getTasks().setValue(result);
+                                    },
                                     error -> {
+                                        mainViewModel.setLoading(false);
                                         Log.e(TAG, "observeTasks: " + error.getMessage());
                                         mainViewModel.getToastMessage().setValue("Error loading tasks. Try again later!");
                                     },
@@ -125,12 +145,15 @@ public class HomeFragment extends BaseFragment {
                     binding.recyclerViewHome.setAdapter(taskAdapter);
                 } else {
                     compositeDisposable.add(viewModel.observeSubmissions(options)
-                            .subscribe(result -> viewModel.getSubmissions().setValue(result),
+                            .subscribe(result -> {
+                                        mainViewModel.setLoading(false);
+                                        viewModel.getSubmissions().setValue(result);
+                                    },
                                     error -> {
+                                        mainViewModel.setLoading(false);
                                         Log.e(TAG, "observeSubmissions: " + error.getMessage());
                                         mainViewModel.getToastMessage().setValue("Error loading submissions. Try again later!");
-                                    },
-                                    () -> mainViewModel.setLoading(false)));
+                                    }));
                     binding.recyclerViewHome.setAdapter(submissionAdapter);
                 }
             }
@@ -157,9 +180,6 @@ public class HomeFragment extends BaseFragment {
                         if (binding.tabLayoutHome.getTabAt(0).isSelected()) {
                             TextView tvId = view.findViewById(R.id.text_view_task_id);
                             int taskId = Integer.parseInt(tvId.getText().toString());
-                            TextView tvName = view.findViewById(R.id.text_view_task_name);
-                            String taskName = tvName.getText().toString();
-                            mainViewModel.setTitle(taskName);
                             mainViewModel.setFragment(TaskFragment.newInstance(taskId));
                         }
                     }
@@ -183,11 +203,15 @@ public class HomeFragment extends BaseFragment {
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                int swipedTaskPosition = viewHolder.getAdapterPosition();
-                Task task = taskAdapter.getTaskAt(swipedTaskPosition);
-                viewModel.insertSavedTask(task);
-                taskAdapter.notifyDataSetChanged();
-                Toast.makeText(getContext(),"Task saved.",Toast.LENGTH_SHORT).show();
+                if (binding.tabLayoutHome.getTabAt(0).isSelected()) {
+                    int swipedTaskPosition = viewHolder.getAdapterPosition();
+                    Task task = taskAdapter.getTaskAt(swipedTaskPosition);
+                    viewModel.insertSavedTask(task);
+                    taskAdapter.notifyDataSetChanged();
+                    Toast.makeText(getContext(),"Task saved.",Toast.LENGTH_SHORT).show();
+                } else {
+                    submissionAdapter.notifyDataSetChanged();
+                }
             }
         };
 

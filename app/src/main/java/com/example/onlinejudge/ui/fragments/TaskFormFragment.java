@@ -2,13 +2,12 @@ package com.example.onlinejudge.ui.fragments;
 
 import android.os.Bundle;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
@@ -16,9 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.onlinejudge.R;
-import com.example.onlinejudge.adapters.BestSubmissionAdapter;
 import com.example.onlinejudge.auth.SessionManager;
-import com.example.onlinejudge.databinding.FragmentTaskBinding;
 import com.example.onlinejudge.databinding.FragmentTaskFormBinding;
 import com.example.onlinejudge.models.Tag;
 import com.example.onlinejudge.models.Task;
@@ -35,6 +32,8 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
+
+import static android.content.Context.INPUT_METHOD_SERVICE;
 
 @AndroidEntryPoint
 public class TaskFormFragment extends BaseFragment implements View.OnClickListener {
@@ -94,11 +93,14 @@ public class TaskFormFragment extends BaseFragment implements View.OnClickListen
         binding.setViewModel(viewModel);
         mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
-        if (taskId != 0) {
+        if (taskId > 0) {
+            mainViewModel.setTitle("Edit task");
+
             mainViewModel.setLoading(true);
             compositeDisposable.add(viewModel.observeTask(taskId)
                     .subscribe(
                             task -> {
+                                mainViewModel.setLoading(false);
                                 viewModel.getTask().setValue(task);
                                 viewModel.getAllTags().setValue(
                                         task.getTags().stream()
@@ -109,11 +111,12 @@ public class TaskFormFragment extends BaseFragment implements View.OnClickListen
                                 viewModel.getNumberOfTestCases().setValue(task.getTestCases().size());
                             },
                             error -> {
+                                mainViewModel.setLoading(false);
                                 mainViewModel.setToastMessage("Could not load task. Try again later!");
-                            },
-                            () -> mainViewModel.setLoading(false)
+                            }
                     ));
         } else {
+            mainViewModel.setTitle("Create task");
             viewModel.getTask().setValue(new Task());
         }
 
@@ -187,6 +190,15 @@ public class TaskFormFragment extends BaseFragment implements View.OnClickListen
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button_task_submit:
+                // hide keyboard if active
+                try {
+                    View view = getActivity() != null ? getActivity().getWindow().getCurrentFocus() : null;
+                    if (view != null && view.getWindowToken() != null) {
+                        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    }
+                } catch (Exception e) {}
+
                 int numberOfTestCases = binding.layoutTaskCasesForm.getChildCount();
                 if (numberOfTestCases == 0) {
                     mainViewModel.setToastMessage("The task must contain at least one test case!");
@@ -262,11 +274,12 @@ public class TaskFormFragment extends BaseFragment implements View.OnClickListen
                         compositeDisposable.add(viewModel.putTask(taskId, task)
                                 .subscribe(
                                         result -> {
-                                            mainViewModel.setTitle(task.getName());
+                                            mainViewModel.setLoading(false);
                                             mainViewModel.setFragment(TaskFragment.newInstance(taskId));
                                         },
-                                        error -> {},
-                                        () -> mainViewModel.setLoading(false)
+                                        error -> {
+                                            mainViewModel.setLoading(false);
+                                        }
                                 )
                         );
                     } else {
@@ -274,11 +287,12 @@ public class TaskFormFragment extends BaseFragment implements View.OnClickListen
                         compositeDisposable.add(viewModel.postTask(task)
                                 .subscribe(
                                         t -> {
-                                            mainViewModel.setTitle(t.getName());
+                                            mainViewModel.setLoading(false);
                                             mainViewModel.setFragment(TaskFragment.newInstance(t.getId()));
                                         },
-                                        error -> {},
-                                        () -> mainViewModel.setLoading(false)
+                                        error -> {
+                                            mainViewModel.setLoading(false);
+                                        }
                                 )
                         );
                     }

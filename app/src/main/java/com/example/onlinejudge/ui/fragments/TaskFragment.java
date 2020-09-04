@@ -93,21 +93,22 @@ public class TaskFragment extends BaseFragment implements View.OnClickListener {
         compositeDisposable.add(viewModel.observeTask(taskId)
                 .subscribe(
                         task -> {
+                            mainViewModel.setLoading(false);
+                            mainViewModel.setTitle(task.getName());
                             viewModel.getTask().setValue(task);
                             for (Tag tag : task.getTags()) {
                                 Button button = new MaterialButton(requireActivity(), null, R.attr.textButton);
                                 button.setText(tag.getName());
                                 button.setOnClickListener(v -> {
-                                    mainViewModel.setTitle("Tagged " + tag.getName());
                                     mainViewModel.setFragment(HomeFragment.newInstance(tag.getId()));
                                 });
                                 binding.chipGroupTags.addView(button);
                             }
                         },
                         error -> {
+                            mainViewModel.setLoading(false);
                             mainViewModel.setToastMessage("Could not load task. Try again later!");
-                        },
-                        () -> mainViewModel.setLoading(false)
+                        }
                 ));
 
         submissionAdapter = new BestSubmissionAdapter(getContext(), new ArrayList<>());
@@ -120,12 +121,13 @@ public class TaskFragment extends BaseFragment implements View.OnClickListener {
             put("limit", 10);
         }}).subscribe(
                 submissionList -> {
+                    mainViewModel.setLoading(false);
                     viewModel.getSubmissions().setValue(submissionList);
                 },
                 error -> {
+                    mainViewModel.setLoading(false);
                     mainViewModel.setToastMessage("Could not load best submissions. Try again later!");
-                },
-                () -> mainViewModel.setLoading(false)
+                }
         ));
 
         viewModel.getSubmissions().observe(getViewLifecycleOwner(), submissions -> {
@@ -138,7 +140,6 @@ public class TaskFragment extends BaseFragment implements View.OnClickListener {
 
         if (sessionManager.isLoggedIn()) {
             mainViewModel.getFabOnClickListener().setValue(v -> {
-                mainViewModel.setTitle("Submit solution to " + viewModel.getTask().getValue().getName());
                 mainViewModel.setFragment(SolutionFormFragment.newInstance(taskId));
             });
         }

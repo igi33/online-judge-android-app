@@ -8,6 +8,7 @@ import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 
 import com.example.onlinejudge.models.Submission;
+import com.example.onlinejudge.models.Tag;
 import com.example.onlinejudge.models.Task;
 import com.example.onlinejudge.repositories.OnlineJudgeRepository;
 
@@ -55,6 +56,12 @@ public class HomeViewModel extends ViewModel {
 
     public Observable<ArrayList<Submission>> observeSubmissions(Map<String, Object> options) {
         return repository.getSubmissions(options)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    public Observable<Tag> observeTag(int id) {
+        return repository.getTag(id)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }

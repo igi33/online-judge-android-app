@@ -2,7 +2,6 @@ package com.example.onlinejudge.viewmodels;
 
 import androidx.hilt.Assisted;
 import androidx.hilt.lifecycle.ViewModelInject;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
@@ -13,7 +12,6 @@ import com.example.onlinejudge.models.User;
 import com.example.onlinejudge.repositories.OnlineJudgeRepository;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;

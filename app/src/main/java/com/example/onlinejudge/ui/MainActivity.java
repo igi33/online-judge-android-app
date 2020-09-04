@@ -26,6 +26,7 @@ import com.example.onlinejudge.models.Tag;
 import com.example.onlinejudge.models.User;
 import com.example.onlinejudge.ui.fragments.HomeFragment;
 import com.example.onlinejudge.ui.fragments.LoginFragment;
+import com.example.onlinejudge.ui.fragments.ProfileFragment;
 import com.example.onlinejudge.ui.fragments.RegisterFragment;
 import com.example.onlinejudge.ui.fragments.TaskFormFragment;
 import com.example.onlinejudge.viewmodels.MainViewModel;
@@ -82,13 +83,14 @@ public class MainActivity extends AppCompatActivity {
                     viewModel.setLoading(true);
                     compositeDisposable.add(viewModel.observeTags()
                             .subscribe(result -> {
+                                viewModel.setLoading(false);
                                 result.add(0, new Tag(0, "All", ""));
                                 viewModel.getTags().setValue(result);
                             },
                             error -> {
+                                viewModel.setLoading(false);
                                 Log.e(TAG, "observeTags: " + error.getMessage());
-                            },
-                            () -> viewModel.setLoading(false)));
+                            }));
                 }
             }
         };
@@ -126,7 +128,6 @@ public class MainActivity extends AppCompatActivity {
                     public void onItemClick(View view, int position) {
                         TextView tv = view.findViewById(R.id.text_view_tag_name);
                         int tagId = Integer.parseInt(tv.getTag().toString());
-                        viewModel.setTitle(tagId > 0 ? "Tagged " + tv.getText() : getResources().getString(R.string.app_name));
                         viewModel.setFragment(HomeFragment.newInstance(tagId));
                         binding.drawerLayout.closeDrawers();
                     }
@@ -185,6 +186,8 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.item_create_task:
                     viewModel.setFragment(TaskFormFragment.newInstance(0));
                     return true;
+                case R.id.item_profile:
+                    viewModel.setFragment(ProfileFragment.newInstance(sessionManager.getUserDetails().getId()));
                 default:
                     return false;
             }

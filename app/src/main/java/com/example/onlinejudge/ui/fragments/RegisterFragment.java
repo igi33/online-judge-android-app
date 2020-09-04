@@ -64,6 +64,7 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
         viewModel = new ViewModelProvider(this).get(RegisterViewModel.class);
         mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
         binding.setViewModel(viewModel);
+        mainViewModel.setTitle("Register");
     }
 
     @Override
@@ -93,14 +94,15 @@ public class RegisterFragment extends BaseFragment implements View.OnClickListen
                 compositeDisposable.add(viewModel.observeRegister(username, email, password)
                         .subscribe(
                                 result -> {
+                                    mainViewModel.setLoading(false);
                                     mainViewModel.setFragment(LoginFragment.newInstance());
                                     mainViewModel.setToastMessage("Successfully registered as " + username + "!");
                                 },
                                 error -> {
+                                    mainViewModel.setLoading(false);
                                     Log.e(TAG, "observeRegister: " + error.getMessage());
                                     mainViewModel.setToastMessage("Could not register. Please try again!");
-                                },
-                                () -> mainViewModel.setLoading(false)));
+                                }));
                 break;
         }
     }

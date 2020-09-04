@@ -2,7 +2,6 @@ package com.example.onlinejudge.viewmodels;
 
 import android.view.View;
 
-import androidx.databinding.ObservableBoolean;
 import androidx.fragment.app.Fragment;
 import androidx.hilt.Assisted;
 import androidx.hilt.lifecycle.ViewModelInject;
@@ -14,7 +13,6 @@ import com.example.onlinejudge.models.Tag;
 import com.example.onlinejudge.models.User;
 import com.example.onlinejudge.repositories.OnlineJudgeRepository;
 import com.example.onlinejudge.ui.fragments.HomeFragment;
-import com.example.onlinejudge.ui.fragments.LoginFragment;
 
 import java.util.ArrayList;
 

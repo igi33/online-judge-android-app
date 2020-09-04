@@ -36,6 +36,9 @@ public class OnlineJudgeRepository {
     public Observable<ArrayList<Task>> getTasks(Map<String, Object> options) {
         return apiService.getTasks(options);
     }
+    public Observable<ArrayList<Task>> getSolvedTasksByUser(int userId, Map<String, Object> options) {
+        return apiService.getSolvedTasksByUser(userId, options);
+    }
     public Observable<Task> getTask(int id) {
         return apiService.getTask(id);
     }
@@ -69,6 +72,9 @@ public class OnlineJudgeRepository {
     public Observable<ArrayList<Tag>> getTags() {
         return apiService.getTags();
     }
+    public Observable<Tag> getTag(int id) {
+        return apiService.getTag(id);
+    }
 
     // api users
     public Observable<User> authenticateUser(UserCredentials userCredentials) {
@@ -76,6 +82,9 @@ public class OnlineJudgeRepository {
     }
     public Observable<User> postUser(UserCredentials userCredentials) {
         return apiService.postUser(userCredentials);
+    }
+    public Observable<User> getUser(int id) {
+        return apiService.getUser(id);
     }
 
     // room tasks

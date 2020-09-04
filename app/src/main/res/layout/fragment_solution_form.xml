@@ -13,6 +13,11 @@
         android:orientation="vertical"
         android:padding="20dp">
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text='@{"Task name: " + viewModel.task.name}' />
+
         <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/spinner_lang"
             android:layout_width="match_parent"

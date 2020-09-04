@@ -72,6 +72,19 @@ public class SolutionFormFragment extends BaseFragment implements View.OnClickLi
         binding.setViewModel(viewModel);
         mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
+        mainViewModel.setTitle("Submit solution");
+
+        // task load
+        mainViewModel.setLoading(true);
+        compositeDisposable.add(viewModel.observeTask(taskId)
+                .subscribe(task -> {
+                            mainViewModel.setLoading(false);
+                            viewModel.getTask().setValue(task);
+                        }, error -> {
+                            mainViewModel.setLoading(false);
+                        }));
+
+        // computer languages load for spinner
         ArrayAdapter<ComputerLanguage> adapter = new ArrayAdapter<>(
                 requireContext(),
                 R.layout.dropdown_menu_popup_item,
@@ -113,13 +126,14 @@ public class SolutionFormFragment extends BaseFragment implements View.OnClickLi
                 compositeDisposable.add(viewModel.postSubmission(taskId, langId, sourceCode)
                         .subscribe(
                                 result -> {
+                                    mainViewModel.setLoading(false);
                                     mainViewModel.setFragment(HomeFragment.newInstance(0, true));
                                 },
                                 error -> {
+                                    mainViewModel.setLoading(false);
                                     Log.e(TAG, "observeLogin: " + error.getMessage());
                                     mainViewModel.setToastMessage("Couldn't submit solution. Please try again!");
-                                },
-                                () -> mainViewModel.setLoading(false)));
+                                }));
                 break;
         }
     }
