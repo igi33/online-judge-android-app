@@ -2,45 +2,43 @@ package com.example.onlinejudge.viewmodels;
 
 import androidx.hilt.Assisted;
 import androidx.hilt.lifecycle.ViewModelInject;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 
-import com.example.onlinejudge.models.Submission;
 import com.example.onlinejudge.models.Task;
-import com.example.onlinejudge.models.User;
 import com.example.onlinejudge.repositories.OnlineJudgeRepository;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import retrofit2.Response;
 
-public class TaskViewModel extends ViewModel {
-    private static final String TAG = "TaskViewModel";
+public class TaskFormViewModel extends ViewModel {
+    private static final String TAG = "TaskFormViewModel";
     private final SavedStateHandle savedStateHandle;
     private OnlineJudgeRepository repository;
 
     private MutableLiveData<Task> task = new MutableLiveData<>();
-    private MutableLiveData<ArrayList<Submission>> submissions = new MutableLiveData<>();
-    private MutableLiveData<User> currentUser = new MutableLiveData<>();
+    private MutableLiveData<String> allTags = new MutableLiveData<>("");
+    private MutableLiveData<Integer> numberOfTestCases = new MutableLiveData<>(0);
 
     @ViewModelInject
-    public TaskViewModel(OnlineJudgeRepository repository, @Assisted SavedStateHandle savedStateHandle) {
+    public TaskFormViewModel(OnlineJudgeRepository repository, @Assisted SavedStateHandle savedStateHandle) {
         this.savedStateHandle = savedStateHandle;
         this.repository = repository;
     }
 
-    public MutableLiveData<User> getCurrentUser() {
-        return currentUser;
+    public MutableLiveData<Task> getTask() {
+        return task;
     }
 
-    public MutableLiveData<ArrayList<Submission>> getSubmissions() {
-        return submissions;
+    public MutableLiveData<String> getAllTags() {
+        return allTags;
+    }
+
+    public MutableLiveData<Integer> getNumberOfTestCases() {
+        return numberOfTestCases;
     }
 
     public Observable<Task> observeTask(int id) {
@@ -49,13 +47,15 @@ public class TaskViewModel extends ViewModel {
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
-    public Observable<ArrayList<Submission>> observeBestSubmissions(int taskId, Map<String, Object> options) {
-        return repository.getBestSubmissionsOfTask(taskId, options)
+    public Observable<Response<Void>> putTask(int id, Task task) {
+        return repository.putTask(id, task)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
-    public MutableLiveData<Task> getTask() {
-        return task;
+    public Observable<Task> postTask(Task task) {
+        return repository.postTask(task)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 }

@@ -91,6 +91,22 @@
 
                 </com.google.android.material.chip.ChipGroup>
 
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <Button
+                        android:id="@+id/button_task_edit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:visibility="@{viewModel.task.user.id == viewModel.currentUser.id ? View.VISIBLE : View.GONE}"
+                        android:text="Edit task"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+                </RelativeLayout>
+
+
             </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>
@@ -110,13 +126,20 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Best Solutions"
+                    android:layout_marginBottom="10dp"
                     android:textAppearance="?attr/textAppearanceHeadline6" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
+
                     android:id="@+id/recycler_view_task_submissions" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="No one has solved this task yet!"
+                    android:visibility="@{viewModel.submissions.size() == 0 ? View.VISIBLE : View.GONE}" />
 
             </LinearLayout>
 

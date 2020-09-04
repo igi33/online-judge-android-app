@@ -29,7 +29,7 @@ import javax.inject.Inject;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class TaskFragment extends BaseFragment {
+public class TaskFragment extends BaseFragment implements View.OnClickListener {
     private static final String TAG = "TaskFragment";
     private static final String ARG_TASKID = "taskId";
 
@@ -87,6 +87,8 @@ public class TaskFragment extends BaseFragment {
         binding.setViewModel(viewModel);
         mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
+        viewModel.getCurrentUser().setValue(sessionManager.getUserDetails());
+
         mainViewModel.setLoading(true);
         compositeDisposable.add(viewModel.observeTask(taskId)
                 .subscribe(
@@ -131,10 +133,8 @@ public class TaskFragment extends BaseFragment {
             submissionAdapter.updateList(submissions);
         });
 
-        binding.buttonTaskSubmittedBy.setOnClickListener(v -> {
-            int userId = Integer.parseInt(v.getTag().toString());
-            mainViewModel.setFragment(ProfileFragment.newInstance(userId));
-        });
+        binding.buttonTaskEdit.setOnClickListener(this);
+        binding.buttonTaskSubmittedBy.setOnClickListener(this);
 
         if (sessionManager.isLoggedIn()) {
             mainViewModel.getFabOnClickListener().setValue(v -> {
@@ -148,5 +148,18 @@ public class TaskFragment extends BaseFragment {
     public void onDestroyView() {
         super.onDestroyView();
         mainViewModel.getFabOnClickListener().setValue(null);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.button_task_edit:
+                mainViewModel.setFragment(TaskFormFragment.newInstance(taskId));
+                break;
+            case R.id.button_task_submitted_by:
+                int userId = Integer.parseInt(v.getTag().toString());
+                mainViewModel.setFragment(ProfileFragment.newInstance(userId));
+                break;
+        }
     }
 }

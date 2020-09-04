@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 
 import io.reactivex.rxjava3.core.Observable;
+import retrofit2.Response;
+
 import javax.inject.Inject;
 
 public class OnlineJudgeRepository {
@@ -37,7 +39,13 @@ public class OnlineJudgeRepository {
     public Observable<Task> getTask(int id) {
         return apiService.getTask(id);
     }
-    public Observable<Void> deleteTask(int id) {
+    public Observable<Task> postTask(Task task) {
+        return apiService.postTask(task);
+    }
+    public Observable<Response<Void>> putTask(int id, Task task) {
+        return apiService.putTask(id, task);
+    }
+    public Observable<Response<Void>> deleteTask(int id) {
         return apiService.deleteTask(id);
     }
 

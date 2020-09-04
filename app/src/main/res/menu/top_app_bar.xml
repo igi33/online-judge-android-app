@@ -3,13 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/item_profile"
-        android:icon="@drawable/ic_face_24dp"
-        android:title="Profile"
-        android:contentDescription="prof"
-        app:showAsAction="never" />
-
-    <item
         android:id="@+id/item_login"
         android:icon="@drawable/ic_exit_to_app_24dp"
         android:title="Login"
@@ -21,6 +14,20 @@
         android:icon="@drawable/ic_person_add_24dp"
         android:title="Register"
         android:contentDescription="register"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/item_profile"
+        android:icon="@drawable/ic_face_24dp"
+        android:title="Profile"
+        android:contentDescription="prof"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/item_create_task"
+        android:icon="@drawable/ic_add_24dp"
+        android:title="Create task"
+        android:contentDescription="Create new task"
         app:showAsAction="never" />
 
     <item

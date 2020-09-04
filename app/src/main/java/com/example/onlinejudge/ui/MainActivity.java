@@ -27,6 +27,7 @@ import com.example.onlinejudge.models.User;
 import com.example.onlinejudge.ui.fragments.HomeFragment;
 import com.example.onlinejudge.ui.fragments.LoginFragment;
 import com.example.onlinejudge.ui.fragments.RegisterFragment;
+import com.example.onlinejudge.ui.fragments.TaskFormFragment;
 import com.example.onlinejudge.viewmodels.MainViewModel;
 
 import org.jetbrains.annotations.NotNull;
@@ -162,6 +163,7 @@ public class MainActivity extends AppCompatActivity {
             binding.toolbarTop.getMenu().findItem(R.id.item_profile).setVisible(isLoggedIn);
             binding.toolbarTop.getMenu().findItem(R.id.item_logout).setVisible(isLoggedIn);
             binding.toolbarTop.getMenu().findItem(R.id.item_register).setVisible(!isLoggedIn);
+            binding.toolbarTop.getMenu().findItem(R.id.item_create_task).setVisible(isLoggedIn);
         });
 
         // set on click actions for the options in the menu at the right
@@ -179,6 +181,10 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 case R.id.item_register:
                     viewModel.setFragment(RegisterFragment.newInstance());
+                    return true;
+                case R.id.item_create_task:
+                    viewModel.setFragment(TaskFormFragment.newInstance(0));
+                    return true;
                 default:
                     return false;
             }

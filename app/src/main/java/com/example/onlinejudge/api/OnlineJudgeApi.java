@@ -14,6 +14,7 @@ import java.util.Map;
 
 import io.reactivex.rxjava3.core.Observable;
 import retrofit2.Call;
+import retrofit2.Response;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
@@ -33,9 +34,9 @@ public interface OnlineJudgeApi {
     @POST("task")
     Observable<Task> postTask(@Body Task task);
     @PUT("task/{id}")
-    Observable<Void> putTask(@Path("id") int id, @Body Task task);
+    Observable<Response<Void>> putTask(@Path("id") int id, @Body Task task);
     @DELETE("task/{id}")
-    Observable<Void> deleteTask(@Path("id") int id);
+    Observable<Response<Void>> deleteTask(@Path("id") int id);
 
     // computer languages
     @GET("computerlanguage")
@@ -67,7 +68,7 @@ public interface OnlineJudgeApi {
     @POST("user")
     Observable<User> postUser(@Body UserCredentials userCredentials);
     @PUT("user/{id}")
-    Observable<Void> putUser(@Path("id") int id, @Body User user);
+    Observable<Response<Void>> putUser(@Path("id") int id, @Body User user);
     @DELETE("user/{id}")
-    Observable<Void> deleteUser(@Path("id") int id);
+    Observable<Response<Void>> deleteUser(@Path("id") int id);
 }
