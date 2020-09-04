@@ -23,8 +23,7 @@
 
             <com.google.android.material.appbar.AppBarLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_insetEdge="top">
+                android:layout_height="wrap_content">
 
                 <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/toolbar_top"
@@ -35,19 +34,13 @@
                     app:navigationIcon="@drawable/ic_menu_24dp"
                     style="@style/Widget.MaterialComponents.Toolbar.Primary" />
 
-                <!--
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text='@{viewModel.isLoggedIn ? "Hello " + viewModel.user.username + "!" : "Hello guest!"}'/>-->
-
             </com.google.android.material.appbar.AppBarLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_dodgeInsetEdges="top">
+                android:layout_marginTop="?attr/actionBarSize">
 
                 <com.google.android.material.progressindicator.ProgressIndicator
                     style="@style/Widget.MaterialComponents.ProgressIndicator.Linear.Indeterminate"
@@ -57,12 +50,29 @@
                     android:visibility="@{viewModel.isLoading ? View.VISIBLE : View.INVISIBLE}"
                     android:id="@+id/progress_bar_top"/>
 
-                <androidx.fragment.app.FragmentContainerView
-                    android:id="@+id/fragment_container_view"
+                <androidx.core.widget.NestedScrollView
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:tag="fragment_container"/>
+                    android:layout_height="wrap_content">
+
+                    <androidx.fragment.app.FragmentContainerView
+                        android:id="@+id/fragment_container_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:tag="fragment_container" />
+
+                </androidx.core.widget.NestedScrollView>
+
             </LinearLayout>
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/floating_action_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:visibility="@{viewModel.fabOnClickListener != null ? View.VISIBLE : View.INVISIBLE}"
+                android:layout_margin="16dp"
+                android:contentDescription="Submit solution"
+                app:srcCompat="@drawable/ic_code_24dp"/>
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

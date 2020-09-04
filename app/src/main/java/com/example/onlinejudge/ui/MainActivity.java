@@ -102,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
                 .setCustomAnimations(R.anim.fragment_open_enter, R.anim.fragment_open_exit,
                         R.anim.fragment_open_enter, R.anim.fragment_open_exit)
                 .replace(R.id.fragment_container_view, fragment)
+                .addToBackStack(null)
                 .commit());
 
         // show toast message when the view model's message changed
@@ -193,6 +194,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        int count = getSupportFragmentManager().getBackStackEntryCount();
+        if (count > 1) {
+            getSupportFragmentManager().popBackStack();
+        }
     }
 
     @Override
