@@ -72,6 +72,7 @@
                 android:visibility="@{viewModel.fabOnClickListener != null ? View.VISIBLE : View.INVISIBLE}"
                 android:layout_margin="16dp"
                 android:contentDescription="Submit solution"
+                app:backgroundTint="?attr/colorAccent"
                 app:srcCompat="@drawable/ic_code_24dp"/>
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>

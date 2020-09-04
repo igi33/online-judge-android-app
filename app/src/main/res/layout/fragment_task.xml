@@ -25,14 +25,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="15dp">
+                android:paddingVertical="10dp"
+                android:paddingHorizontal="15dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text='@{viewModel.task.description}'
-                    android:textAppearance="?attr/textAppearanceBody2"
-                    android:textColor="?android:attr/textColorSecondary"/>
+                    android:textAppearance="?attr/textAppearanceBody1"
+                    android:textColor="?android:attr/textColorPrimary"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -40,7 +41,7 @@
                     android:layout_marginTop="15dp"
                     android:text='@{"Time limit: " + ((double)viewModel.task.timeLimit / 1000.0) + " s"}'
                     android:textAppearance="?attr/textAppearanceBody2"
-                    android:textColor="?android:attr/textColorSecondary"/>
+                    android:textColor="?android:attr/textColorPrimary"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -48,7 +49,15 @@
                     android:layout_marginTop="15dp"
                     android:text='@{"Memory limit: " + ((double)viewModel.task.memoryLimit / 1024.0 / 1024.0) + " MiB"}'
                     android:textAppearance="?attr/textAppearanceBody2"
-                    android:textColor="?android:attr/textColorSecondary"/>
+                    android:textColor="?android:attr/textColorPrimary"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:text='@{"Origin: " + viewModel.task.origin}'
+                    android:textAppearance="?attr/textAppearanceBody2"
+                    android:textColor="?android:attr/textColorPrimary"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -56,7 +65,7 @@
                     android:layout_marginTop="15dp"
                     android:text='@{"Submitted at: " + @string/date_format(viewModel.task.timeSubmitted)}'
                     android:textAppearance="?attr/textAppearanceBody2"
-                    android:textColor="?android:attr/textColorSecondary"/>
+                    android:textColor="?android:attr/textColorPrimary"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -69,7 +78,7 @@
                         android:layout_height="wrap_content"
                         android:text="Submitted by: "
                         android:textAppearance="?attr/textAppearanceBody2"
-                        android:textColor="?android:attr/textColorSecondary" />
+                        android:textColor="?android:attr/textColorPrimary" />
 
                     <Button
                         android:id="@+id/button_task_submitted_by"
@@ -132,7 +141,6 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-
                     android:id="@+id/recycler_view_task_submissions" />
 
                 <TextView

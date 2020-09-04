@@ -32,7 +32,7 @@
                     android:layout_height="wrap_content"
                     android:text='@{"ID: " + viewModel.user.id}'
                     android:textAppearance="?attr/textAppearanceBody2"
-                    android:textColor="?android:attr/textColorSecondary"/>
+                    android:textColor="?android:attr/textColorPrimary"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -40,7 +40,7 @@
                     android:layout_marginTop="15dp"
                     android:text='@{"Username: " + viewModel.user.username}'
                     android:textAppearance="?attr/textAppearanceBody2"
-                    android:textColor="?android:attr/textColorSecondary"/>
+                    android:textColor="?android:attr/textColorPrimary"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -48,7 +48,7 @@
                     android:layout_marginTop="15dp"
                     android:text='@{"Email: " + viewModel.user.email}'
                     android:textAppearance="?attr/textAppearanceBody2"
-                    android:textColor="?android:attr/textColorSecondary"/>
+                    android:textColor="?android:attr/textColorPrimary"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -56,7 +56,7 @@
                     android:layout_marginTop="15dp"
                     android:text='@{"Registered at: " + @string/date_format(viewModel.user.timeRegistered)}'
                     android:textAppearance="?attr/textAppearanceBody2"
-                    android:textColor="?android:attr/textColorSecondary"/>
+                    android:textColor="?android:attr/textColorPrimary"/>
 
             </LinearLayout>
 
